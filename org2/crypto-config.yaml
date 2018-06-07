@@ -1,0 +1,9 @@
+PeerOrgs:
+  - Name: Org2
+    Domain: org2.example.com
+    EnableNodeOUs: true
+    Specs:
+      - CommonName: SYNL901761
+    Users:
+      Count: 3
+  

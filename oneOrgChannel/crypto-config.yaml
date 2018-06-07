@@ -1,0 +1,13 @@
+OrdererOrgs:
+  - Name: Orderer
+    Domain: example.com
+    Specs:
+      - CommonName: dev-ThinkCentre-A63  
+PeerOrgs:
+  - Name: Org1
+    Domain: org1.example.com
+    EnableNodeOUs: true
+    Specs:
+      - CommonName: dev-thinkcentre-a63
+    Users:
+      Count: 3

@@ -1,0 +1,21 @@
+Profiles:
+   
+Organizations:
+
+    - &Org2
+        Name: Org2MSP
+        ID: Org2MSP
+        MSPDir: crypto-config/peerOrganizations/org2.example.com/msp
+        AnchorPeers:
+            - Host: peer0.org2.example.com
+              Port: 7051
+
+Application: &ApplicationDefaults
+    Organizations:
+Capabilities:
+    Global: &ChannelCapabilities
+        V1_1: true
+    Orderer: &OrdererCapabilities
+        V1_1: true
+    Application: &ApplicationCapabilities
+        V1_1: true
