@@ -1,4 +1,6 @@
-Commands
+*Commands*
+
+```
 rm -rf crypto-config &&
 rm -rf channel-artifacts &&
 rm -rf config-exports &&
@@ -10,33 +12,41 @@ configtxgen -inspectBlock ./channel-artifacts/genesis.block > ./config-exports/g
 configtxgen -profile OneOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID foo &&
 configtxgen -inspectChannelCreateTx ./channel-artifacts/channel.tx > ./config-exports/channel-tx.json &&
 configtxgen -profile OneOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID foo -asOrg Org1MSP
-
+```
 Post generation of Org2.json
+```
 scp dev@10.34.15.246:/home/dev/work/fabric/org2/channel-artifacts/org2.json /home/dev/git/fabric/oneOrgChannel/crypto-config/.
+```
 
-
-Org 2 Configurations
-
+###Org 2 Configurations
+```
 rm -rf crypto-config &&
 rm -rf channel-artifacts &&
 rm -rf config-exports &&
 cryptogen generate --config=./crypto-config.yaml
-
+```
 
 SSH to Host 2 
+```
 ssh dev@10.34.15.246:dev.123
 cd /home/dev/work/fabric/org2 && 
 sudo rm -rf /home/dev/work/fabric/org2/crypto-config/ && echo Done
 sudo mkdir -p /home/dev/work/fabric/org2/crypto-config/ordererOrganizations && echo Done Creating Orderer Directory
-Below steps are note required in case of cryptogen working on node 2.
+```
+
+Below steps are not required in case of cryptogen working on node 2.
+```
 sudo scp -r dev@10.34.14.1:/home/dev/git/fabric/oneOrgChannel/crypto-config/ordererOrganizations ~/work/fabric/org2/crypto-config 
 sudo scp -r dev@10.34.14.1:/home/dev/git/fabric/org2/crypto-config/ ~/work/fabric/org2/
 sudo scp -r dev@10.34.14.1:/home/dev/git/fabric/org2/configtx.yaml ~/work/fabric/org2/
+```
+continue with above
+```
 sudo rm -rf channel-artifacts && 
 sudo mkdir channel-artifacts && 
 sudo chmod 777 channel-artifacts
 configtxgen -printOrg Org2MSP > ./channel-artifacts/org2.json
-
+```
 Go in to CLI
 export ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem  && export CHANNEL_NAME=foo
 export ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/dev-ThinkCentre-A63/msp/tlscacerts/tlsca.example.com-cert.pem && export CHANNEL_NAME=foo
@@ -47,22 +57,24 @@ peer channel fetch config config_block.pb -o orderer.example.com:7050 -c $CHANNE
 
 
 
-SWARM
-dev@dev-thinkcentre-a63:> docker swarm init
-dev@dev-thinkcentre-a63:~/git/fabric/org2$ docker swarm join-token manager
+##Creating SWARM network 
+```
+docker swarm init
+docker swarm join-token manager
 To add a manager to this swarm, run the following command:
 
     docker swarm join --token SWMTKN-1-2hbn5v2xcrwu5hmr909cgzgq1o5wmacs29v2r7ydg7kclorvzr-6ilmxk36js0onwx1s9j6yz732 10.34.14.1:2377
 
-dev@dev-thinkcentre-a63:~/git/fabric/org2$ docker node ls
+docker node ls
 ID                            HOSTNAME              STATUS              AVAILABILITY        MANAGER STATUS
 9l833gxh3cssraptqgej39z3n     SYNL901761            Ready               Active              
 422exu8a5g7c02d0i44tdm0n8 *   dev-thinkcentre-a63   Ready               Active              Leader
 docker network create --attachable --driver overlay my-net
+```
 
-
-Docker Commands for Each Node Service: 
-Orderer (No TLS)
+##Docker Commands for Each Node Service: 
+###Orderer (No TLS)
+```
 docker run --rm -it --network="my-net" \
 --name orderer.example.com -p 7050:7050 \
 -e ORDERER_GENERAL_LOGLEVEL=debug \
@@ -77,8 +89,9 @@ docker run --rm -it --network="my-net" \
 -v $(pwd)/channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block \
 -v $(pwd)/crypto-config/ordererOrganizations/example.com/orderers/dev-ThinkCentre-A63/msp:/var/hyperledger/orderer/msp \
 -w /opt/gopath/src/github.com/hyperledger/fabric hyperledger/fabric-orderer orderer
-
-PEER 1 (Org1)
+```
+###PEER 1 (Org1)
+```
 docker run --rm -it \
 --link orderer.example.com:orderer.example.com --network="my-net" \
 --name peer0.org1.example.com \
@@ -105,9 +118,9 @@ docker run --rm -it \
 -w /opt/gopath/src/github.com/hyperledger/fabric/peer \
 hyperledger/fabric-peer \
 peer node start
-
-CLI 1(Org 1)
-CLI 
+```
+###CLI 1(Org 1)
+``` 
 docker run --rm -it --network="my-net" \
 --name cli \
 --link orderer.example.com:orderer.example.com \
@@ -134,8 +147,9 @@ docker run --rm -it --network="my-net" \
 -w /opt/gopath/src/github.com/hyperledger/fabric/peer \
 hyperledger/fabric-tools \
 /bin/bash
-
-Later install below in CLI 
+```
+###Later install below in CLI 
+```
 >sudo apt-get update && sudo apt-get install jq
 >peer channel create -o orderer.example.com:7050 -c foo -f ./channel-artifacts/channel.tx
 >peer channel fetch config config_block.pb -o orderer.example.com:7050 -c foo --cafile $ORDERER_CA
@@ -149,9 +163,10 @@ Later install below in CLI
 >configtxlator proto_encode --input org2_update_in_envelope.json --type common.Envelope --output org2_update_in_envelope.pb
 >peer channel signconfigtx -f org2_update_in_envelope.pb
 >peer channel update -f org2_update_in_envelope.pb -c foo -o orderer.example.com:7050 --cafile $ORDERER_CA
-
+```
 
 PEER 2 (Org2)
+```
 docker run --rm -it --network="my-net" \
 --link orderer.example.com:orderer.example.com \
 --link peer0.org1.example.com:peer0.org1.example.com \
@@ -180,9 +195,10 @@ docker run --rm -it --network="my-net" \
 -w /opt/gopath/src/github.com/hyperledger/fabric/peer \
 hyperledger/fabric-peer \
 peer node start
+```
 
-
-CLI2 
+###CLI2 
+```
 docker run --rm -it --network="my-net" \
 --name cli \
 --link orderer.example.com:orderer.example.com \
@@ -209,16 +225,18 @@ docker run --rm -it --network="my-net" \
 -w /opt/gopath/src/github.com/hyperledger/fabric/peer \
 hyperledger/fabric-tools \
 /bin/bash
+```
 
 Later run belowin CLI 2 (Post Update config)
+```
 >peer channel fetch 0 foo.block -o orderer.example.com:7050 -c foo --cafile $ORDERER_CA
 >peer channel join -b foo.block
+```
+
+**At this point Org2 Peer0 is added.**
 
 
-At this point Org2 Peer0 is added.
-
-
-Chain Code Installation 
+##Chain Code Installation 
 
 Install Chain Code CLI 1
 peer chaincode install -n mycc -v 1.0 -p github.com/hyperledger/fabric/examples/chaincode/go/chaincode/chaincode_example02/go
