@@ -1,0 +1,7 @@
+oneOrgChannel/channel-artifacts/**
+org2/channel-artifacts/**
+oneOrgChannel/crypto-config/**
+org2/crypto-config/**
+oneOrgChannel/config-exports/**
+org2/config-exports/**
+/trash/
