@@ -1,6 +1,6 @@
-The setup is for hosting a fabric netowrk across multiple physical hosts. The hyperledger subsystems (Orderer,Peer) are part of docker images, and hence on a different hostmachine an overlay netowrk is used.We will use docker swarm and will use 2 hosts to be part of swarms
+The setup is for hosting a fabric netowrk across multiple physical hosts. The hyperledger subsystems (Orderer,Peer) are part of docker images, and hence on a different hostmachine an overlay netowrk is used.We will use docker swarm and will use 2 hosts to be part of swarms.
 ## Setup 
-We will use 2 host machines and 2 Organizations with One channel (foo). Host 1 will run Orderer and Peer 0 of Org1 and Host 2 will run Peer 0 of Org2
+We will use 2 host machines and 2 Organizations with One channel (foo). Host 1 will run Orderer and Peer 0 of Org1 and Host 2 will run Peer 0 of Org2. There is no TLS configuration used here.
 
 ## Building SWARM Network
 Below command set shoudl be run on various Host1 
@@ -64,7 +64,7 @@ configtxgen -printOrg Org2MSP > ./channel-artifacts/org2.json
 ```
 
 ## Start Docker Services for Each Node Service on Host  1 (Orderer,Org1 Peer0 and CLI1): 
-###Orderer (No TLS)
+### Orderer (No TLS)
 ```
 docker run --rm -it --network="my-net" \
 --name orderer.example.com -p 7050:7050 \
@@ -81,7 +81,7 @@ docker run --rm -it --network="my-net" \
 -v $(pwd)/crypto-config/ordererOrganizations/example.com/orderers/dev-ThinkCentre-A63/msp:/var/hyperledger/orderer/msp \
 -w /opt/gopath/src/github.com/hyperledger/fabric hyperledger/fabric-orderer orderer
 ```
-###PEER 1 (Org1)
+### PEER 1 (Org1)
 ```
 docker run --rm -it \
 --link orderer.example.com:orderer.example.com --network="my-net" \
@@ -110,7 +110,7 @@ docker run --rm -it \
 hyperledger/fabric-peer \
 peer node start
 ```
-###CLI 1(Org 1)
+### CLI 1(Org 1)
 ``` 
 docker run --rm -it --network="my-net" \
 --name cli \
