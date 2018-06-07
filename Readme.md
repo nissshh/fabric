@@ -139,21 +139,23 @@ docker run --rm -it --network="my-net" \
 hyperledger/fabric-tools \
 /bin/bash
 ```
-#### Later install below in CLI 
+#### Later run below commands in CLI 1 to register the ORG2 
+*Prior to runnnig make sure that the org2.json is available in CLI so it could be referenced.*
+
 ```
->sudo apt-get update && sudo apt-get install jq
->peer channel create -o orderer.example.com:7050 -c foo -f ./channel-artifacts/channel.tx
->peer channel fetch config config_block.pb -o orderer.example.com:7050 -c foo --cafile $ORDERER_CA
->configtxlator proto_decode --input config_block.pb --type common.Block | jq .data.data[0].payload.data.config > config.json
->jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {"Org2MSP":.[1]}}}}}' config.json ./channel-artifacts/org2.json > modified_config.json
->configtxlator proto_encode --input config.json --type common.Config --output config.pb
->configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
->configtxlator compute_update --channel_id foo --original config.pb --updated modified_config.pb --output org2_update.pb
->configtxlator proto_decode --input org2_update.pb --type common.ConfigUpdate | jq . > org2_update.json
->echo '{"payload":{"header":{"channel_header":{"channel_id":"foo", "type":2}},"data":{"config_update":'$(cat org2_update.json)'}}}' | jq . > org2_update_in_envelope.json
->configtxlator proto_encode --input org2_update_in_envelope.json --type common.Envelope --output org2_update_in_envelope.pb
->peer channel signconfigtx -f org2_update_in_envelope.pb
->peer channel update -f org2_update_in_envelope.pb -c foo -o orderer.example.com:7050 --cafile $ORDERER_CA
+$sudo apt-get update && sudo apt-get install jq
+$peer channel create -o orderer.example.com:7050 -c foo -f ./channel-artifacts/channel.tx
+$peer channel fetch config config_block.pb -o orderer.example.com:7050 -c foo --cafile $ORDERER_CA
+$configtxlator proto_decode --input config_block.pb --type common.Block | jq .data.data[0].payload.data.config > config.json
+$jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {"Org2MSP":.[1]}}}}}' config.json ./channel-artifacts/org2.json > modified_config.json
+$configtxlator proto_encode --input config.json --type common.Config --output config.pb
+$configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
+$configtxlator compute_update --channel_id foo --original config.pb --updated modified_config.pb --output org2_update.pb
+$configtxlator proto_decode --input org2_update.pb --type common.ConfigUpdate | jq . > org2_update.json
+$echo '{"payload":{"header":{"channel_header":{"channel_id":"foo", "type":2}},"data":{"config_update":'$(cat org2_update.json)'}}}' | jq . > org2_update_in_envelope.json
+$configtxlator proto_encode --input org2_update_in_envelope.json --type common.Envelope --output org2_update_in_envelope.pb
+$peer channel signconfigtx -f org2_update_in_envelope.pb
+$peer channel update -f org2_update_in_envelope.pb -c foo -o orderer.example.com:7050 --cafile $ORDERER_CA
 ```
 
 ### Start Docker containers for PEER 2 (Org2) and CLI2 
@@ -217,8 +219,8 @@ docker run --rm -it --network="my-net" \
 hyperledger/fabric-tools \
 /bin/bash
 ```
-
-Later run belowin CLI 2 (Post Update config)
+#### Adding Organization 2 to the Channel 
+Later run belowin CLI 2 (Post Update config) to add the org2 to foo channel.
 ```
 >peer channel fetch 0 foo.block -o orderer.example.com:7050 -c foo --cafile $ORDERER_CA
 >peer channel join -b foo.block
@@ -227,29 +229,37 @@ Later run belowin CLI 2 (Post Update config)
 **At this point Org2 Peer0 is added.**
 
 
-##Chain Code Installation 
+## Chain Code Installation 
 
 Install Chain Code CLI 1
+```
 peer chaincode install -n mycc -v 1.0 -p github.com/hyperledger/fabric/examples/chaincode/go/chaincode/chaincode_example02/go
+```
 Install Chain Code CLI 2
+```
 peer chaincode install -n mycc -v 1.0 -p github.com/hyperledger/fabric/examples/chaincode/go/chaincode/chaincode_example02/go
-
+```
 Instantiate
+
 CLI 1
 Error: Error endorsing query: rpc error: code = Unknown desc = access denied: channel [foo] creator org [Org1MSP] - <nil>
 CLI 2
->peer chaincode instantiate -o orderer.example.com:7050 --cafile $ORDERER_CA -C foo -n mycc -v 1.0 -c '{"Args":["init","a", "100", "b","200"]}' -P "AND ('Org1MSP.peer','Org2MSP.peer')"
-
+```
+$peer chaincode instantiate -o orderer.example.com:7050 --cafile $ORDERER_CA -C foo -n mycc -v 1.0 -c '{"Args":["init","a", "100", "b","200"]}' -P "AND ('Org1MSP.peer','Org2MSP.peer')"
+```
 Query
 CLI 1
 Error: Error endorsing query: rpc error: code = Unknown desc = access denied: channel [foo] creator org [Org1MSP] - <nil>
 CLI 2
->peer chaincode query -C foo -n mycc -c '{"Args":["query","a"]}'
-
+```
+    $peer chaincode query -C foo -n mycc -c '{"Args":["query","a"]}'
+```
 
 Invoke
 CLI1 :
 Error: Error endorsing query: rpc error: code = Unknown desc = access denied: channel [foo] creator org [Org1MSP] - <nil>
 CLI 2:
-peer chaincode invoke -o orderer.example.com:7050 --cafile $ORDERER_CA -Cfoo -n mycc -c '{"Args":["invoke","a","b","10"]}'
+```
+    peer chaincode invoke -o orderer.example.com:7050 --cafile $ORDERER_CA -Cfoo -n mycc -c '{"Args":["invoke","a","b","10"]}'
+    ```
 
