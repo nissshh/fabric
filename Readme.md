@@ -55,8 +55,8 @@ rm -rf channel-artifacts &&
 rm -rf config-exports &&
 cryptogen generate --config=./crypto-config.yaml
 cd /home/dev/work/fabric/org2 && 
-sudo rm -rf /home/dev/work/fabric/org2/crypto-config/ && echo Done
 sudo mkdir -p /home/dev/work/fabric/org2/crypto-config/ordererOrganizations && echo Done Creating Orderer Directory
+sudo scp -r dev@10.34.14.1:/home/dev/git/fabric/oneOrgChannel/crypto-config/ordererOrganizations ~/work/fabric/org2/crypto-config
 sudo rm -rf channel-artifacts && 
 sudo mkdir channel-artifacts && 
 sudo chmod 777 channel-artifacts
