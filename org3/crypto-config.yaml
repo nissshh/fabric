@@ -1,0 +1,9 @@
+PeerOrgs:
+  - Name: Org3
+    Domain: org3.example.com
+    EnableNodeOUs: true
+    Specs:
+      - CommonName: dev-thinkcentre-a63
+    Users:
+      Count: 3
+  

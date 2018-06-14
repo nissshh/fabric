@@ -4,4 +4,6 @@ oneOrgChannel/crypto-config/**
 org2/crypto-config/**
 oneOrgChannel/config-exports/**
 org2/config-exports/**
+org3/crypto-config/**
+org3/channel-artifacts/**
 /trash/
